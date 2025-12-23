@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import connectDB from './config/db.js';
 import { sendResponse } from './utils/responseHandler.js';
+import authRoutes from './routes/authRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -18,6 +19,9 @@ const PORT = process.env.PORT || 5000;
 app.use(helmet()); // Security headers
 app.use(cors()); // Enable CORS
 app.use(express.json()); // Parse JSON bodies
+
+// Routes
+app.use('/api/auth', authRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
