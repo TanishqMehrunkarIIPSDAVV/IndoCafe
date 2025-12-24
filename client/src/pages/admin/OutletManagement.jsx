@@ -98,18 +98,18 @@ const OutletManagement = () => {
     }
   };
 
-  if (loading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin h-8 w-8 text-blue-600" /></div>;
+  if (loading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
 
   return (
     <div className="space-y-6">
       {/* Tabs */}
-      <div className="flex space-x-4 border-b border-gray-200">
+      <div className="flex space-x-4 border-b border-secondary/10">
         <button
           onClick={() => setActiveTab('outlets')}
           className={`pb-2 px-4 font-medium text-sm transition-colors ${
             activeTab === 'outlets' 
-              ? 'border-b-2 border-blue-600 text-blue-600' 
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'border-b-2 border-primary text-primary' 
+              : 'text-secondary hover:text-text'
           }`}
         >
           Manage Outlets
@@ -118,8 +118,8 @@ const OutletManagement = () => {
           onClick={() => setActiveTab('managers')}
           className={`pb-2 px-4 font-medium text-sm transition-colors ${
             activeTab === 'managers' 
-              ? 'border-b-2 border-blue-600 text-blue-600' 
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'border-b-2 border-primary text-primary' 
+              : 'text-secondary hover:text-text'
           }`}
         >
           Add Managers
@@ -137,24 +137,24 @@ const OutletManagement = () => {
       {activeTab === 'outlets' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* List Outlets */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <Store className="h-5 w-5 mr-2 text-blue-500" />
+          <div className="bg-surface p-6 rounded-xl shadow-sm border border-secondary/10">
+            <h3 className="text-lg font-semibold text-text mb-4 flex items-center">
+              <Store className="h-5 w-5 mr-2 text-primary" />
               Existing Outlets
             </h3>
             <div className="space-y-3 max-h-[500px] overflow-y-auto">
               {outlets.length === 0 ? (
-                <p className="text-gray-400 text-sm">No outlets found.</p>
+                <p className="text-secondary text-sm">No outlets found.</p>
               ) : (
                 outlets.map((outlet) => (
-                  <div key={outlet._id} className="p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div key={outlet._id} className="p-3 border border-secondary/10 rounded-lg hover:bg-secondary/5 transition-colors">
                     <div className="flex justify-between items-center">
-                      <span className="font-medium text-gray-700">{outlet.name}</span>
+                      <span className="font-medium text-text">{outlet.name}</span>
                       <span className={`text-xs px-2 py-1 rounded-full ${outlet.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                         {outlet.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-400 mt-1 capitalize">{outlet.type.replace('_', ' ')}</p>
+                    <p className="text-xs text-secondary mt-1 capitalize">{outlet.type.replace('_', ' ')}</p>
                   </div>
                 ))
               )}
@@ -162,29 +162,29 @@ const OutletManagement = () => {
           </div>
 
           {/* Add Outlet Form */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <Plus className="h-5 w-5 mr-2 text-blue-500" />
+          <div className="bg-surface p-6 rounded-xl shadow-sm border border-secondary/10">
+            <h3 className="text-lg font-semibold text-text mb-4 flex items-center">
+              <Plus className="h-5 w-5 mr-2 text-primary" />
               Add New Outlet
             </h3>
             <form onSubmit={handleOutletSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Outlet Name</label>
+                <label className="block text-sm font-medium text-text mb-1">Outlet Name</label>
                 <input
                   type="text"
                   required
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 bg-background border border-secondary/20 rounded-lg text-text focus:ring-primary focus:border-primary"
                   value={outletForm.name}
                   onChange={(e) => setOutletForm({...outletForm, name: e.target.value})}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <label className="block text-sm font-medium text-text mb-1">Address</label>
                 <textarea
                   required
                   rows="2"
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 bg-background border border-secondary/20 rounded-lg text-text focus:ring-primary focus:border-primary"
                   value={outletForm.address}
                   onChange={(e) => setOutletForm({...outletForm, address: e.target.value})}
                 />
@@ -192,9 +192,9 @@ const OutletManagement = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                  <label className="block text-sm font-medium text-text mb-1">Type</label>
                   <select
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 bg-background border border-secondary/20 rounded-lg text-text focus:ring-primary focus:border-primary"
                     value={outletForm.type}
                     onChange={(e) => setOutletForm({...outletForm, type: e.target.value})}
                   >
@@ -204,11 +204,11 @@ const OutletManagement = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <label className="block text-sm font-medium text-text mb-1">Phone</label>
                   <input
                     type="text"
                     required
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 bg-background border border-secondary/20 rounded-lg text-text focus:ring-primary focus:border-primary"
                     value={outletForm.phoneNumber}
                     onChange={(e) => setOutletForm({...outletForm, phoneNumber: e.target.value})}
                   />
@@ -216,7 +216,7 @@ const OutletManagement = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                <label className="block text-sm font-medium text-text mb-1">Location</label>
                 <LocationPicker 
                   onChange={(pos) => setOutletForm(prev => ({
                     ...prev,
@@ -230,7 +230,7 @@ const OutletManagement = () => {
                     step="any"
                     readOnly
                     placeholder="Latitude"
-                    className="w-full p-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-500"
+                    className="w-full p-2 bg-background border border-secondary/20 rounded-lg text-sm text-secondary"
                     value={outletForm.latitude}
                   />
                   <input
@@ -238,7 +238,7 @@ const OutletManagement = () => {
                     step="any"
                     readOnly
                     placeholder="Longitude"
-                    className="w-full p-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-500"
+                    className="w-full p-2 bg-background border border-secondary/20 rounded-lg text-sm text-secondary"
                     value={outletForm.longitude}
                   />
                 </div>
@@ -247,7 +247,7 @@ const OutletManagement = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="w-full py-2 px-4 bg-primary text-on-primary rounded-lg hover:opacity-90 disabled:opacity-50 transition-colors"
               >
                 {submitting ? 'Creating...' : 'Create Outlet'}
               </button>
@@ -258,17 +258,17 @@ const OutletManagement = () => {
 
       {/* Managers Tab */}
       {activeTab === 'managers' && (
-        <div className="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <UserPlus className="h-5 w-5 mr-2 text-blue-500" />
+        <div className="max-w-2xl mx-auto bg-surface p-6 rounded-xl shadow-sm border border-secondary/10">
+          <h3 className="text-lg font-semibold text-text mb-4 flex items-center">
+            <UserPlus className="h-5 w-5 mr-2 text-primary" />
             Assign New Manager
           </h3>
           <form onSubmit={handleManagerSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Select Outlet</label>
+              <label className="block text-sm font-medium text-text mb-1">Select Outlet</label>
               <select
                 required
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 bg-background border border-secondary/20 rounded-lg text-text focus:ring-primary focus:border-primary"
                 value={managerForm.outletId}
                 onChange={(e) => setManagerForm({...managerForm, outletId: e.target.value})}
               >
@@ -280,22 +280,22 @@ const OutletManagement = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Manager Name</label>
+              <label className="block text-sm font-medium text-text mb-1">Manager Name</label>
               <input
                 type="text"
                 required
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 bg-background border border-secondary/20 rounded-lg text-text focus:ring-primary focus:border-primary"
                 value={managerForm.name}
                 onChange={(e) => setManagerForm({...managerForm, name: e.target.value})}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <label className="block text-sm font-medium text-text mb-1">Email Address</label>
               <input
                 type="email"
                 required
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 bg-background border border-secondary/20 rounded-lg text-text focus:ring-primary focus:border-primary"
                 value={managerForm.email}
                 onChange={(e) => setManagerForm({...managerForm, email: e.target.value})}
               />
@@ -303,21 +303,21 @@ const OutletManagement = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <label className="block text-sm font-medium text-text mb-1">Password</label>
                 <input
                   type="password"
                   required
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 bg-background border border-secondary/20 rounded-lg text-text focus:ring-primary focus:border-primary"
                   value={managerForm.password}
                   onChange={(e) => setManagerForm({...managerForm, password: e.target.value})}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <label className="block text-sm font-medium text-text mb-1">Phone</label>
                 <input
                   type="text"
                   required
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 bg-background border border-secondary/20 rounded-lg text-text focus:ring-primary focus:border-primary"
                   value={managerForm.phoneNumber}
                   onChange={(e) => setManagerForm({...managerForm, phoneNumber: e.target.value})}
                 />
@@ -327,7 +327,7 @@ const OutletManagement = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              className="w-full py-2 px-4 bg-primary text-on-primary rounded-lg hover:opacity-90 disabled:opacity-50 transition-colors"
             >
               {submitting ? 'Creating...' : 'Create Manager'}
             </button>
