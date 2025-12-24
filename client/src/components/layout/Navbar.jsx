@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useOutlet } from '../../context/OutletContext';
 import { useTheme } from '../../context/ThemeContext';
-import axios from 'axios';
+import api from '../../lib/axios';
 import Button from '../ui/Button';
 import { MapPin, ChevronDown, X, Loader2, Sun, Moon, ShoppingBag } from 'lucide-react';
 
@@ -22,7 +22,7 @@ const Navbar = () => {
 
   const fetchOutlets = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/public/outlets');
+      const res = await api.get('/api/public/outlets');
       if (res.data.success) {
         setAllOutlets(res.data.data);
       }

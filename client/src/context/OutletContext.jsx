@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../lib/axios';
 
 const OutletContext = createContext();
 
@@ -27,7 +27,7 @@ export const OutletProvider = ({ children }) => {
           async (position) => {
             try {
               const { latitude, longitude } = position.coords;
-              const res = await axios.get(`http://localhost:5000/api/public/outlets/nearest?lat=${latitude}&lng=${longitude}`);
+              const res = await api.get(`/api/public/outlets/nearest?lat=${latitude}&lng=${longitude}`);
               
               if (res.data.success) {
                 const outlet = res.data.data;

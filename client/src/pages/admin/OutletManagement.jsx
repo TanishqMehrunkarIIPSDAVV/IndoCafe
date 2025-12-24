@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../lib/axios';
 import { Plus, Store, UserPlus, MapPin, Phone, Loader2 } from 'lucide-react';
 import LocationPicker from '../../components/ui/LocationPicker';
 
@@ -35,7 +35,7 @@ const OutletManagement = () => {
 
   const fetchOutlets = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/outlets');
+      const res = await api.get('/api/admin/outlets');
       if (res.data.success) {
         setOutlets(res.data.data);
       }
@@ -60,7 +60,7 @@ const OutletManagement = () => {
         }
       };
 
-      const res = await axios.post('http://localhost:5000/api/admin/outlets', payload);
+      const res = await api.post('/api/admin/outlets', payload);
       
       if (res.data.success) {
         setMessage({ type: 'success', text: 'Outlet created successfully!' });
@@ -85,7 +85,7 @@ const OutletManagement = () => {
         role: 'OUTLET_MANAGER'
       };
 
-      const res = await axios.post('http://localhost:5000/api/admin/users', payload);
+      const res = await api.post('/api/admin/users', payload);
       
       if (res.data.success) {
         setMessage({ type: 'success', text: 'Manager created successfully!' });
@@ -142,7 +142,7 @@ const OutletManagement = () => {
               <Store className="h-5 w-5 mr-2 text-primary" />
               Existing Outlets
             </h3>
-            <div className="space-y-3 max-h-[500px] overflow-y-auto">
+            <div className="space-y-3 max-h-125 overflow-y-auto">
               {outlets.length === 0 ? (
                 <p className="text-secondary text-sm">No outlets found.</p>
               ) : (

@@ -9,7 +9,7 @@ const Home = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow">
+      <main className="grow">
         <HeroSection />
         <ServiceTypeSelector />
         <FeaturedItems />
