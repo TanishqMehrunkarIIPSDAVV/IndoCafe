@@ -1,6 +1,7 @@
 import express from 'express';
 import { createStaff, getStaffByOutlet, deleteStaff } from '../controllers/staffController.js';
-import { protect, authorize } from '../middleware/authMiddleware.js';
+import { protect } from '../middleware/authMiddleware.js';
+import { authorize } from '../middleware/rbacMiddleware.js';
 
 const router = express.Router();
 
