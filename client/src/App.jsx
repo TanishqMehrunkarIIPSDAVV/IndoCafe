@@ -14,6 +14,8 @@ import ManagerLayout from './layouts/ManagerLayout';
 import OutletManagement from './pages/admin/OutletManagement';
 import Dashboard from './pages/admin/Dashboard';
 import GlobalMenu from './pages/admin/GlobalMenu';
+import Analytics from './pages/admin/Analytics';
+import UserManagement from './pages/admin/UserManagement';
 
 // Manager Pages
 import MenuControl from './pages/manager/MenuControl';
@@ -30,28 +32,37 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/" element={<Navigate to="/home" replace />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/unauthorized" element={<div className="p-10 text-center text-2xl text-red-600">Unauthorized Access</div>} />
+              <Route
+                path="/unauthorized"
+                element={<div className="p-10 text-center text-2xl text-red-600">Unauthorized Access</div>}
+              />
 
               {/* Super Admin Routes */}
-              <Route path="/admin" element={
-                <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }>
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
                 <Route path="overview" element={<Dashboard />} />
                 <Route path="outlets" element={<OutletManagement />} />
                 <Route path="menu" element={<GlobalMenu />} />
-                <Route path="users" element={<div className="p-4">User Management (Coming Soon)</div>} />
-                <Route path="analytics" element={<div className="p-4">Analytics (Coming Soon)</div>} />
+                <Route path="users" element={<UserManagement />} />
+                <Route path="analytics" element={<Analytics />} />
                 <Route index element={<Navigate to="/admin/overview" replace />} />
               </Route>
 
               {/* Manager Routes */}
-              <Route path="/manager" element={
-                <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'OUTLET_MANAGER']}>
-                  <ManagerLayout />
-                </ProtectedRoute>
-              }>
+              <Route
+                path="/manager"
+                element={
+                  <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'OUTLET_MANAGER']}>
+                    <ManagerLayout />
+                  </ProtectedRoute>
+                }
+              >
                 <Route path="live-orders" element={<div className="p-4">Live Orders (Coming Soon)</div>} />
                 <Route path="menu" element={<MenuControl />} />
                 <Route path="staff" element={<StaffManagement />} />
@@ -60,25 +71,34 @@ function App() {
               </Route>
 
               {/* Kitchen Routes */}
-              <Route path="/kitchen" element={
-                <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'OUTLET_MANAGER', 'KITCHEN']}>
-                  <div className="p-4">Kitchen Interface (Coming Soon)</div>
-                </ProtectedRoute>
-              } />
+              <Route
+                path="/kitchen"
+                element={
+                  <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'OUTLET_MANAGER', 'KITCHEN']}>
+                    <div className="p-4">Kitchen Interface (Coming Soon)</div>
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Waiter Routes */}
-              <Route path="/waiter" element={
-                <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'OUTLET_MANAGER', 'WAITER']}>
-                  <div className="p-4">Waiter Interface (Coming Soon)</div>
-                </ProtectedRoute>
-              } />
+              <Route
+                path="/waiter"
+                element={
+                  <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'OUTLET_MANAGER', 'WAITER']}>
+                    <div className="p-4">Waiter Interface (Coming Soon)</div>
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Dispatcher Routes */}
-              <Route path="/dispatcher" element={
-                <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'OUTLET_MANAGER', 'DISPATCHER']}>
-                  <div className="p-4">Dispatcher Interface (Coming Soon)</div>
-                </ProtectedRoute>
-              } />
+              <Route
+                path="/dispatcher"
+                element={
+                  <ProtectedRoute allowedRoles={['SUPER_ADMIN', 'OUTLET_MANAGER', 'DISPATCHER']}>
+                    <div className="p-4">Dispatcher Interface (Coming Soon)</div>
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Catch all - redirect to home */}
               <Route path="*" element={<Navigate to="/home" replace />} />

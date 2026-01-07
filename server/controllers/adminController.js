@@ -14,7 +14,7 @@ export const createOutlet = async (req, res) => {
       address,
       type,
       phoneNumber,
-      location
+      location,
     });
 
     sendResponse(res, 201, outlet, 'Outlet created successfully', true);
@@ -45,8 +45,24 @@ export const createUser = async (req, res) => {
     const { name, email, password, role, phoneNumber, outletId } = req.body;
 
     // Validate outletId for operational roles
-    if (!outletId && ['OUTLET_MANAGER', 'CASHIER', 'KITCHEN', 'WAITER', 'DISPATCHER', 'RIDER'].includes(role)) {
-      return sendResponse(res, 400, null, 'Outlet ID is required for operational roles', false);
+    if (
+      !outletId &&
+      [
+        'OUTLET_MANAGER',
+        'CASHIER',
+        'KITCHEN',
+        'WAITER',
+        'DISPATCHER',
+        'RIDER',
+      ].includes(role)
+    ) {
+      return sendResponse(
+        res,
+        400,
+        null,
+        'Outlet ID is required for operational roles',
+        false
+      );
     }
 
     const userExists = await User.findOne({ email });
@@ -60,17 +76,49 @@ export const createUser = async (req, res) => {
       password,
       role,
       phoneNumber,
-      defaultOutletId: outletId
+      defaultOutletId: outletId,
     });
 
-    sendResponse(res, 201, {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      defaultOutletId: user.defaultOutletId
-    }, 'User created successfully', true);
+    sendResponse(
+      res,
+      201,
+      {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        defaultOutletId: user.defaultOutletId,
+      },
+      'User created successfully',
+      true
+    );
+  } catch (error) {
+    console.error(error);
+    sendResponse(res, 500, null, error.message, false);
+  }
+};
 
+// @desc    Display Users
+// @route   GET /api/admin/users
+// @access  Private (Super Admin)
+export const getUsers = async (req, res) => {
+  try {
+    const { role } = req.query;
+
+    // Build filter object
+    const filter = {};
+    if (role) {
+      filter.role = role;
+    }
+
+    // Get users with optional role filter
+    const users = await User.find(filter)
+      .select('-password')
+      .populate('defaultOutletId', 'name _id')
+      .populate('assignedOutlets', 'name _id')
+      .sort({ createdAt: -1 });
+
+    sendResponse(res, 200, users, 'Users retrieved successfully', true);
   } catch (error) {
     console.error(error);
     sendResponse(res, 500, null, error.message, false);

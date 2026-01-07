@@ -13,15 +13,16 @@ The Business Owner or System Administrator. They do not cook food or serve table
 
 ## 🛠️ Key Features & Implementation Status
 
-| Feature                    | Description                                                         | Status       |
-| :------------------------- | :------------------------------------------------------------------ | :----------- |
-| **Authentication**         | Secure login, password reset, session management.                   | ✅ **Done**  |
-| **Outlet Management**      | Create new restaurant branches (outlets), assign specific managers. | ✅ **Done**  |
-| **Staff Oversight**        | View all staff across all outlets.                                  | ✅ **Done**  |
-| **Global Menu**            | Define the "Master Menu" available to all outlets.                  | ✅ **Done**  |
-| **Analytics Dashboard**    | Aggregated view of total sales, top performing outlets.             | ❌ **To Do** |
-| **Audit Logs**             | View system-wide critical actions (e.g., who deleted a menu item).  | ❌ **To Do** |
-| **Billing & Subscription** | Manage SaaS payments for the platform usage.                        | ❌ **To Do** |
+| Feature                    | Description                                                         | Status             |
+| :------------------------- | :------------------------------------------------------------------ | :----------------- |
+| **Authentication**         | Secure login, password reset, session management.                   | ✅ **Done**        |
+| **Outlet Management**      | Create new restaurant branches (outlets), assign specific managers. | ✅ **Done**        |
+| **Staff Oversight**        | View all staff across all outlets.                                  | ✅ **Done**        |
+| **Global Menu**            | Define the "Master Menu" available to all outlets.                  | ✅ **Done**        |
+| **Analytics Dashboard**    | Aggregated view of total sales, top performing outlets.             | ❌ **To Do**       |
+| **Audit Logs**             | View system-wide critical actions (e.g., who deleted a menu item).  | ❌ **To Do**       |
+| **Billing & Subscription** | Manage SaaS payments for the platform usage.                        | ❌ **To Do**       |
+| **Users**                  | Add and remove Users, edit them, filter role and outlet wise        | ⚠️ **In Progress** |
 
 ## 🔄 Daily Workflow
 
