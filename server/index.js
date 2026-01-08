@@ -9,6 +9,8 @@ import adminRoutes from './routes/adminRoutes.js';
 import publicRoutes from './routes/publicRoutes.js';
 import menuRoutes from './routes/menuRoutes.js';
 import staffRoutes from './routes/staffRoutes.js';
+import reservationRoutes from './routes/reservationRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -30,6 +32,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api', menuRoutes);
 app.use('/api/manager/staff', staffRoutes);
+app.use('/api', reservationRoutes);
+app.use('/api', orderRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
@@ -48,5 +52,5 @@ app.use((err, req, res, next) => {
 // });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

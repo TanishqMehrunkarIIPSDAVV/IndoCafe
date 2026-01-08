@@ -1,0 +1,129 @@
+import React from 'react';
+import { useCart } from '../../context/CartContextValues';
+import { useOutlet } from '../../context/OutletContext'; // Use outlet context to get currency or validate
+import Button from '../ui/Button';
+import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
+import api from '../../lib/axios';
+import toast from 'react-hot-toast';
+
+const CartDrawer = () => {
+  const { cartItems, cartTotal, isCartOpen, setIsCartOpen, updateQuantity, clearCart } = useCart();
+  const { selectedOutlet } = useOutlet();
+
+  const handleCheckout = async () => {
+    if (!selectedOutlet) {
+      toast.error('Please select an outlet first.'); // Should not happen ideally
+      return;
+    }
+
+    try {
+      // Transform cart items to match API expectation
+      const orderItems = cartItems.map((item) => ({
+        menuItem: item._id, // or item.menuItemId depending on data structure
+        quantity: item.quantity,
+        modifiers: item.modifiers,
+      }));
+
+      const payload = {
+        outletId: selectedOutlet._id,
+        items: orderItems,
+        totalAmount: cartTotal,
+      };
+
+      // API call to create order
+      const res = await api.post('/api/public/orders', payload);
+
+      if (res.data.success) {
+        toast.success('Order Placed Successfully!');
+        clearCart();
+        setIsCartOpen(false);
+      }
+    } catch (error) {
+      console.error('Checkout failed', error);
+      toast.error(error.response?.data?.message || 'Failed to place order.');
+    }
+  };
+
+  if (!isCartOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[70] flex justify-end">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}></div>
+
+      {/* Drawer */}
+      <div className="relative w-full max-w-md bg-surface h-full shadow-2xl flex flex-col border-l border-white/10 animate-in slide-in-from-right duration-300">
+        <div className="p-4 border-b border-white/10 flex justify-between items-center bg-surface">
+          <h2 className="text-xl font-bold text-text flex items-center gap-2">
+            <ShoppingBag className="w-5 h-5" /> Your Order
+          </h2>
+          <button onClick={() => setIsCartOpen(false)} className="text-secondary hover:text-text">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {cartItems.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-secondary">
+              <ShoppingBag className="w-16 h-16 mb-4 opacity-20" />
+              <p>Your cart is empty.</p>
+              <Button variant="outline" className="mt-4" onClick={() => setIsCartOpen(false)}>
+                Browse Menu
+              </Button>
+            </div>
+          ) : (
+            cartItems.map((item) => (
+              <div key={item._id} className="flex gap-4 p-3 bg-background rounded-xl border border-white/5">
+                <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0">
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 flex flex-col justify-between">
+                  <div className="flex justify-between items-start">
+                    <h3 className="font-bold text-text line-clamp-1">{item.name}</h3>
+                    <p className="font-bold text-primary">${(item.price * item.quantity).toFixed(2)}</p>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="flex items-center gap-3 bg-surface rounded-lg p-1 border border-white/10">
+                      <button
+                        onClick={() => updateQuantity(item._id, item.quantity - 1, item.modifiers)}
+                        className="p-1 hover:text-primary transition-colors"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item._id, item.quantity + 1, item.modifiers)}
+                        className="p-1 hover:text-primary transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {cartItems.length > 0 && (
+          <div className="p-4 border-t border-white/10 bg-surface">
+            <div className="flex justify-between items-center mb-4">
+              <button onClick={clearCart} className="text-sm text-red-500 hover:text-red-400">
+                Clear Cart
+              </button>
+            </div>
+            <div className="flex justify-between items-center mb-4 text-lg font-bold text-text">
+              <span>Total</span>
+              <span>${cartTotal.toFixed(2)}</span>
+            </div>
+            <Button variant="primary" className="w-full py-4 text-lg font-bold" onClick={handleCheckout}>
+              Checkout
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default CartDrawer;

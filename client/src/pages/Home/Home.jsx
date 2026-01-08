@@ -1,16 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
 import HeroSection from '../../features/home/HeroSection';
 import ServiceTypeSelector from '../../features/home/ServiceTypeSelector';
 import FeaturedItems from '../../features/home/FeaturedItems';
+import OutletSelector from '../../components/layout/OutletSelector';
+import ReservationModal from '../../components/reservation/ReservationModal';
+import { useOutlet } from '../../context/OutletContext';
 
 const Home = () => {
+  const { selectedOutlet, isLoading } = useOutlet();
+  // We can also have a state to force show selector if user wants to change
+  const [showSelector, setShowSelector] = useState(false);
+  const [showReservation, setShowReservation] = useState(false);
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center bg-background text-primary">Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      {(!selectedOutlet || showSelector) && <OutletSelector onClose={() => setShowSelector(false)} />}
+
+      {showReservation && <ReservationModal onClose={() => setShowReservation(false)} />}
+
+      <Navbar onOpenOutletSelector={() => setShowSelector(true)} />
       <main className="grow">
-        <HeroSection />
+        <HeroSection onBookTable={() => setShowReservation(true)} />
         <ServiceTypeSelector />
         <FeaturedItems />
       </main>

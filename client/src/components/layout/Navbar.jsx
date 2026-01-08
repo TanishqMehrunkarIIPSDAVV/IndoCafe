@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useCart } from '../../context/CartContextValues';
 import { useOutlet } from '../../context/OutletContext';
 import { useTheme } from '../../context/ThemeContext';
-import api from '../../lib/axios';
 import Button from '../ui/Button';
-import { MapPin, ChevronDown, X, Loader2, Sun, Moon, ShoppingBag } from 'lucide-react';
+import { MapPin, ChevronDown, Sun, Moon, ShoppingBag, X, Loader2 } from 'lucide-react';
+import OutletSelector from './OutletSelector';
 
-const Navbar = () => {
+const Navbar = ({ onOpenOutletSelector }) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { selectedOutlet, setOutlet } = useOutlet();
+  const { selectedOutlet } = useOutlet();
   const { isDarkMode, toggleTheme } = useTheme();
-  const [showOutletModal, setShowOutletModal] = useState(false);
-  const [allOutlets, setAllOutlets] = useState([]);
+  const { cartCount, setIsCartOpen } = useCart();
+  const [showInternalOutletModal, setShowInternalOutletModal] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,25 +21,12 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const fetchOutlets = async () => {
-    try {
-      const res = await api.get('/api/public/outlets');
-      if (res.data.success) {
-        setAllOutlets(res.data.data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch outlets', error);
+  const handleOutletClick = () => {
+    if (onOpenOutletSelector) {
+      onOpenOutletSelector();
+    } else {
+      setShowInternalOutletModal(true);
     }
-  };
-
-  const handleOpenModal = () => {
-    fetchOutlets();
-    setShowOutletModal(true);
-  };
-
-  const handleSelectOutlet = (outlet) => {
-    setOutlet(outlet);
-    setShowOutletModal(false);
   };
 
   return (
@@ -84,7 +72,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {/* Outlet Selector */}
             <button
-              onClick={handleOpenModal}
+              onClick={handleOutletClick}
               className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
                 isScrolled
                   ? 'bg-background border-secondary/20 text-text hover:border-primary/50'
@@ -93,7 +81,7 @@ const Navbar = () => {
             >
               <MapPin className="h-4 w-4 text-primary" />
               <span className="max-w-[150px] truncate">
-                {selectedOutlet ? `Ordering from: ${selectedOutlet.name}` : 'Select Location'}
+                {selectedOutlet ? `Order: ${selectedOutlet.name}` : 'Select Location'}
               </span>
               <ChevronDown className="h-4 w-4" />
             </button>
@@ -108,12 +96,15 @@ const Navbar = () => {
 
             {/* Cart */}
             <button
+              onClick={() => setIsCartOpen(true)}
               className={`relative p-2 rounded-full transition-colors ${isScrolled ? 'text-text hover:bg-secondary/10' : 'hover:bg-surface/50 text-white hover:text-text'}`}
             >
               <ShoppingBag className="h-6 w-6" />
-              <span className="absolute top-0 right-0 bg-primary text-on-primary text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                0
-              </span>
+              {cartCount > 0 && (
+                <span className="absolute top-0 right-0 bg-primary text-on-primary text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </button>
 
             <Button variant="primary" className="hidden md:block">
@@ -123,51 +114,8 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Outlet Selection Modal */}
-      {showOutletModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-surface rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-secondary/10">
-            <div className="p-4 border-b border-secondary/10 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-text">Select an Outlet</h3>
-              <button onClick={() => setShowOutletModal(false)} className="text-secondary hover:text-text">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="p-4 max-h-[60vh] overflow-y-auto space-y-2">
-              {allOutlets.length > 0 ? (
-                allOutlets.map((outlet) => (
-                  <button
-                    key={outlet._id}
-                    onClick={() => handleSelectOutlet(outlet)}
-                    className={`w-full text-left p-3 rounded-lg border transition-all ${
-                      selectedOutlet?._id === outlet._id
-                        ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                        : 'border-secondary/20 hover:border-primary/50 hover:bg-secondary/5'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium text-text">{outlet.name}</p>
-                        <p className="text-sm text-secondary mt-1">{outlet.address}</p>
-                      </div>
-                      {selectedOutlet?._id === outlet._id && (
-                        <span className="text-primary text-xs font-bold bg-primary/10 px-2 py-1 rounded-full">
-                          Selected
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                ))
-              ) : (
-                <div className="text-center py-8 text-secondary">
-                  <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-secondary/50" />
-                  <p>Loading outlets...</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Internal Outlet Selection Modal (Fallback) */}
+      {showInternalOutletModal && <OutletSelector onClose={() => setShowInternalOutletModal(false)} />}
     </>
   );
 };
