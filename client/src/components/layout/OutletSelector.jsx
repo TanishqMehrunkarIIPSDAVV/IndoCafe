@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useOutlet } from '../../context/OutletContext';
+import { useOutlet } from '../../context/OutletContextValues';
 import api from '../../lib/axios';
 import Button from '../ui/Button';
 

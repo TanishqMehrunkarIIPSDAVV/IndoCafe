@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useOutlet } from '../../context/OutletContext';
+import { useOutlet } from '../../context/OutletContextValues';
 import api from '../../lib/axios';
 import Button from '../ui/Button';
 import { X, Calendar, Clock, Users, User, Phone, MessageSquare } from 'lucide-react';

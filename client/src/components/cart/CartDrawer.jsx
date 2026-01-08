@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCart } from '../../context/CartContextValues';
-import { useOutlet } from '../../context/OutletContext'; // Use outlet context to get currency or validate
+import { useOutlet } from '../../context/OutletContextValues'; // Use outlet context to get currency or validate
 import Button from '../ui/Button';
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import api from '../../lib/axios';

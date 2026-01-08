@@ -1,17 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContextValues';
 import { useTheme } from '../context/ThemeContext';
-import { 
-  ClipboardList, 
-  Armchair, 
-  ChefHat, 
-  LogOut, 
-  Menu,
-  Bell,
-  Sun,
-  Moon,
-  Utensils
-} from 'lucide-react';
+import { ClipboardList, Armchair, ChefHat, LogOut, Menu, Bell, Sun, Moon, Utensils } from 'lucide-react';
 
 const ManagerLayout = () => {
   const { user, logout } = useAuth();
@@ -25,9 +15,9 @@ const ManagerLayout = () => {
   };
 
   const isActive = (path) => {
-    return location.pathname.startsWith(path) 
-      ? "bg-primary text-on-primary" 
-      : "text-secondary hover:bg-secondary/10 hover:text-text";
+    return location.pathname.startsWith(path)
+      ? 'bg-primary text-on-primary'
+      : 'text-secondary hover:bg-secondary/10 hover:text-text';
   };
 
   return (
@@ -38,21 +28,33 @@ const ManagerLayout = () => {
           <h1 className="text-2xl font-bold text-primary">IndoCafe</h1>
           <p className="text-xs text-secondary mt-1">Manager Portal</p>
         </div>
-        
+
         <nav className="flex-1 p-4 space-y-2">
-          <Link to="/manager/live-orders" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/manager/live-orders')}`}>
+          <Link
+            to="/manager/live-orders"
+            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/manager/live-orders')}`}
+          >
             <ClipboardList className="h-5 w-5 mr-3" />
             Live Orders
           </Link>
-          <Link to="/manager/menu" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/manager/menu')}`}>
+          <Link
+            to="/manager/menu"
+            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/manager/menu')}`}
+          >
             <Utensils className="h-5 w-5 mr-3" />
             Menu Control
           </Link>
-          <Link to="/manager/tables" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/manager/tables')}`}>
+          <Link
+            to="/manager/tables"
+            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/manager/tables')}`}
+          >
             <Armchair className="h-5 w-5 mr-3" />
             Tables
           </Link>
-          <Link to="/manager/kitchen" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/manager/kitchen')}`}>
+          <Link
+            to="/manager/kitchen"
+            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/manager/kitchen')}`}
+          >
             <ChefHat className="h-5 w-5 mr-3" />
             Kitchen View
           </Link>
@@ -79,14 +81,14 @@ const ManagerLayout = () => {
             <button className="md:hidden text-secondary focus:outline-none">
               <Menu className="h-6 w-6" />
             </button>
-            
+
             <h2 className="text-xl font-semibold text-text">
               {location.pathname.split('/').pop().replace('-', ' ').toUpperCase()}
             </h2>
 
             <div className="flex items-center space-x-4">
               {/* Theme Toggle */}
-              <button 
+              <button
                 onClick={toggleTheme}
                 className="p-2 text-secondary hover:text-text rounded-full hover:bg-secondary/10 transition-colors"
               >
@@ -96,10 +98,10 @@ const ManagerLayout = () => {
               <button className="p-2 text-secondary hover:text-text rounded-full hover:bg-secondary/10 transition-colors">
                 <Bell className="h-5 w-5" />
               </button>
-              
+
               <div className="h-6 w-px bg-secondary/20 mx-2"></div>
-              
-              <button 
+
+              <button
                 onClick={handleLogout}
                 className="flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
               >

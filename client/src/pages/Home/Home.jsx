@@ -6,7 +6,7 @@ import ServiceTypeSelector from '../../features/home/ServiceTypeSelector';
 import FeaturedItems from '../../features/home/FeaturedItems';
 import OutletSelector from '../../components/layout/OutletSelector';
 import ReservationModal from '../../components/reservation/ReservationModal';
-import { useOutlet } from '../../context/OutletContext';
+import { useOutlet } from '../../context/OutletContextValues';
 
 const Home = () => {
   const { selectedOutlet, isLoading } = useOutlet();

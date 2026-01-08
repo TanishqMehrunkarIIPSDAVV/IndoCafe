@@ -1,11 +1,6 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../lib/axios';
-
-const OutletContext = createContext();
-
-export const useOutlet = () => {
-  return useContext(OutletContext);
-};
+import { OutletContext } from './OutletContextValues';
 
 export const OutletProvider = ({ children }) => {
   const [selectedOutlet, setSelectedOutlet] = useState(null);
@@ -28,21 +23,21 @@ export const OutletProvider = ({ children }) => {
             try {
               const { latitude, longitude } = position.coords;
               const res = await api.get(`/api/public/outlets/nearest?lat=${latitude}&lng=${longitude}`);
-              
+
               if (res.data.success) {
                 const outlet = res.data.data;
                 setSelectedOutlet(outlet);
                 localStorage.setItem('selectedOutlet', JSON.stringify(outlet));
               }
             } catch (error) {
-              console.error("Error finding nearest outlet:", error);
+              console.error('Error finding nearest outlet:', error);
               // Fallback: User will have to select manually
             } finally {
               setIsLoading(false);
             }
           },
           (error) => {
-            console.warn("Geolocation permission denied or error:", error);
+            console.warn('Geolocation permission denied or error:', error);
             setIsLoading(false);
           }
         );
@@ -62,7 +57,7 @@ export const OutletProvider = ({ children }) => {
   const value = {
     selectedOutlet,
     isLoading,
-    setOutlet
+    setOutlet,
   };
 
   return <OutletContext.Provider value={value}>{children}</OutletContext.Provider>;

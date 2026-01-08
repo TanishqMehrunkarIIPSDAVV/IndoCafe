@@ -1,16 +1,19 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../lib/axios';
-
-const AuthContext = createContext();
-
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+import { AuthContext } from './AuthContextValues';
+import axios from 'axios';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [loading, setLoading] = useState(true);
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+    delete axios.defaults.headers.common['Authorization'];
+  };
 
   useEffect(() => {
     const checkLoggedIn = async () => {
@@ -19,7 +22,7 @@ export const AuthProvider = ({ children }) => {
         try {
           // Verify token and get user details
           const res = await api.get('/api/auth/me');
-          
+
           if (res.data.success) {
             setUser(res.data.data);
             setToken(storedToken);
@@ -27,7 +30,7 @@ export const AuthProvider = ({ children }) => {
             logout();
           }
         } catch (error) {
-          console.error("Session expired or invalid:", error);
+          console.error('Session expired or invalid:', error);
           logout();
         }
       }
@@ -39,31 +42,28 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await api.post('/api/auth/login', {
-        email,
-        password,
-      });
+      const res = await api.post('/api/auth/login', { email, password });
 
       if (res.data.success) {
         const { token, ...userData } = res.data.data;
         localStorage.setItem('token', token);
         setToken(token);
         setUser(userData);
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         return { success: true, user: userData };
+      } else {
+        return {
+          success: false,
+          message: res.data.message || 'Login failed',
+        };
       }
     } catch (error) {
+      console.error('Login error:', error);
       return {
         success: false,
-        message: error.response?.data?.message || 'Login failed',
+        message: error.response?.data?.message || 'An error occurred during login',
       };
     }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-    delete axios.defaults.headers.common['Authorization'];
   };
 
   const value = {

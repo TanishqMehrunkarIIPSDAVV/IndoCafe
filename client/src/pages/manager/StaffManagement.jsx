@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContextValues';
 import axios from '../../lib/axios';
 import Button from '../../components/ui/Button';
 
@@ -13,20 +13,15 @@ const StaffManagement = () => {
     password: '',
     role: 'WAITER',
     shiftStartTime: '',
-    phoneNumber: '' // Added as it is required by backend
+    phoneNumber: '', // Added as it is required by backend
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   const roles = ['WAITER', 'KITCHEN', 'DISPATCHER'];
 
-  useEffect(() => {
-    if (user?.defaultOutletId) {
-      fetchStaff();
-    }
-  }, [user]);
-
-  const fetchStaff = async () => {
+  const fetchStaff = React.useCallback(async () => {
+    if (!user?.defaultOutletId) return;
     try {
       const response = await axios.get(`/manager/staff/${user.defaultOutletId}`);
       setStaffList(response.data);
@@ -36,7 +31,13 @@ const StaffManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.defaultOutletId]);
+
+  useEffect(() => {
+    if (user?.defaultOutletId) {
+      fetchStaff();
+    }
+  }, [user, fetchStaff]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,7 +51,7 @@ const StaffManagement = () => {
     try {
       await axios.post('/manager/staff', {
         ...formData,
-        outletId: user.defaultOutletId
+        outletId: user.defaultOutletId,
       });
       setSuccess('Staff member added successfully!');
       setFormData({
@@ -59,7 +60,7 @@ const StaffManagement = () => {
         password: '',
         role: 'WAITER',
         shiftStartTime: '',
-        phoneNumber: ''
+        phoneNumber: '',
       });
       fetchStaff();
     } catch (err) {
@@ -72,10 +73,10 @@ const StaffManagement = () => {
 
     try {
       await axios.delete(`/manager/staff/${staffId}`);
-      setStaffList(staffList.filter(staff => staff._id !== staffId));
+      setStaffList(staffList.filter((staff) => staff._id !== staffId));
       setSuccess('Staff member removed successfully.');
     } catch (err) {
-      setError('Failed to remove staff member.');
+      setError('Failed to remove staff member. ' + err.response?.data?.message);
     }
   };
 
@@ -89,7 +90,7 @@ const StaffManagement = () => {
         {/* Add Staff Form */}
         <div className="bg-white p-6 rounded-xl shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-gray-700">Add New Staff</h2>
-          
+
           {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
           {success && <div className="bg-green-100 text-green-700 p-3 rounded mb-4">{success}</div>}
 
@@ -150,8 +151,10 @@ const StaffManagement = () => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {roles.map(role => (
-                  <option key={role} value={role}>{role}</option>
+                {roles.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
                 ))}
               </select>
             </div>
@@ -177,14 +180,17 @@ const StaffManagement = () => {
         {/* Staff List */}
         <div className="bg-white p-6 rounded-xl shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-gray-700">Current Staff</h2>
-          
+
           <div className="overflow-y-auto max-h-[600px]">
             {staffList.length === 0 ? (
               <p className="text-gray-500 text-center py-4">No staff members found.</p>
             ) : (
               <div className="space-y-4">
-                {staffList.map(staff => (
-                  <div key={staff._id} className="border border-gray-200 rounded-lg p-4 flex justify-between items-center hover:bg-gray-50 transition-colors">
+                {staffList.map((staff) => (
+                  <div
+                    key={staff._id}
+                    className="border border-gray-200 rounded-lg p-4 flex justify-between items-center hover:bg-gray-50 transition-colors"
+                  >
                     <div>
                       <h3 className="font-semibold text-gray-800">{staff.name}</h3>
                       <p className="text-sm text-gray-600">{staff.email}</p>
@@ -197,8 +203,8 @@ const StaffManagement = () => {
                         </span>
                       </div>
                     </div>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="text-red-600 border-red-600 hover:bg-red-50"
                       onClick={() => handleRemove(staff._id)}
                     >

@@ -1,18 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContextValues';
 import { useTheme } from '../context/ThemeContext';
-import { 
-  LayoutDashboard, 
-  Store, 
-  Users, 
-  BarChart3, 
-  LogOut, 
-  Menu,
-  Bell,
-  Sun,
-  Moon,
-  Utensils
-} from 'lucide-react';
+import { LayoutDashboard, Store, Users, BarChart3, LogOut, Menu, Bell, Sun, Moon, Utensils } from 'lucide-react';
 
 const AdminLayout = () => {
   const { user, logout } = useAuth();
@@ -26,9 +15,9 @@ const AdminLayout = () => {
   };
 
   const isActive = (path) => {
-    return location.pathname.startsWith(path) 
-      ? "bg-primary text-on-primary" 
-      : "text-secondary hover:bg-secondary/10 hover:text-text";
+    return location.pathname.startsWith(path)
+      ? 'bg-primary text-on-primary'
+      : 'text-secondary hover:bg-secondary/10 hover:text-text';
   };
 
   return (
@@ -39,25 +28,40 @@ const AdminLayout = () => {
           <h1 className="text-2xl font-bold text-primary">IndoCafe</h1>
           <p className="text-xs text-secondary mt-1">Super Admin Portal</p>
         </div>
-        
+
         <nav className="flex-1 p-4 space-y-2">
-          <Link to="/admin/overview" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/admin/overview')}`}>
+          <Link
+            to="/admin/overview"
+            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/admin/overview')}`}
+          >
             <LayoutDashboard className="h-5 w-5 mr-3" />
             Overview
           </Link>
-          <Link to="/admin/outlets" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/admin/outlets')}`}>
+          <Link
+            to="/admin/outlets"
+            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/admin/outlets')}`}
+          >
             <Store className="h-5 w-5 mr-3" />
             Outlets
           </Link>
-          <Link to="/admin/menu" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/admin/menu')}`}>
+          <Link
+            to="/admin/menu"
+            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/admin/menu')}`}
+          >
             <Utensils className="h-5 w-5 mr-3" />
             Global Menu
           </Link>
-          <Link to="/admin/users" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/admin/users')}`}>
+          <Link
+            to="/admin/users"
+            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/admin/users')}`}
+          >
             <Users className="h-5 w-5 mr-3" />
             Users
           </Link>
-          <Link to="/admin/analytics" className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/admin/analytics')}`}>
+          <Link
+            to="/admin/analytics"
+            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${isActive('/admin/analytics')}`}
+          >
             <BarChart3 className="h-5 w-5 mr-3" />
             Analytics
           </Link>
@@ -84,14 +88,14 @@ const AdminLayout = () => {
             <button className="md:hidden text-secondary focus:outline-none">
               <Menu className="h-6 w-6" />
             </button>
-            
+
             <h2 className="text-xl font-semibold text-text">
               {location.pathname.split('/').pop().replace('-', ' ').toUpperCase()}
             </h2>
 
             <div className="flex items-center space-x-4">
               {/* Theme Toggle */}
-              <button 
+              <button
                 onClick={toggleTheme}
                 className="p-2 text-secondary hover:text-text rounded-full hover:bg-secondary/10 transition-colors"
               >
@@ -101,10 +105,10 @@ const AdminLayout = () => {
               <button className="p-2 text-secondary hover:text-text rounded-full hover:bg-secondary/10 transition-colors">
                 <Bell className="h-5 w-5" />
               </button>
-              
+
               <div className="h-6 w-px bg-secondary/20 mx-2"></div>
-              
-              <button 
+
+              <button
                 onClick={handleLogout}
                 className="flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
               >
