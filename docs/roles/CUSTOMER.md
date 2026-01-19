@@ -3,33 +3,34 @@
 ## 👤 User Persona
 
 **Who are they?**
-The end-user ordering food either from home (Delivery) or scanning a QR code at the table (Dine-in). They demand a slick, Amazon-like seamless experience.
-**Key Design Requirement**: Visual appeal (Food Porn), Frictionless checkout, Real-time reassurance (Tracking).
+The end-user dining at the restaurant. They have walked in, been seated, and want a frictionless ordering experience without waiting for a waiter.
+**Key Design Requirement**: Visual appeal (Food Porn), Instant Access (QR Code), Real-time Status.
 
 ## 🔐 Access Level
 
-- **Routes**: `/shop/*`, `/account/*`
-- **Capabilities**: Browse Menu, Add to Cart, Checkout, Track Order.
-- **Restrictions**: Read-only mainly. Can only edit _their own_ active untransmitted orders or profile.
+- **Routes**: `/shop/*` (Delivery), `/:outletId/:tableId` (Dine-In)
+- **Capabilities**: Browse Menu, Add to Cart, Checkout (Pay Now/Later), Track Order.
+- **Restrictions**: Read-only mainly. Can only edit _their own_ active untransmitted orders.
 
 ## 🛠️ Key Features & Implementation Status
 
-| Feature            | Description                                                                           | Status             |
-| :----------------- | :------------------------------------------------------------------------------------ | :----------------- |
-| **Home Page**      | Attractive landing page. Currently contains dummy data.                               | ⚠️ **In Progress** |
-| **Digital Menu**   | Categorized list with high-res photos and "Add" buttons.                              | ❌ **To Do**       |
-| **Cart Logic**     | LocalStorage/Server-side cart handling.                                               | ❌ **To Do**       |
-| **Authentication** | Sign up / Login (OTP based preferred for mobile).                                     | ❌ **To Do**       |
-| **Checkout**       | Address selection, Payment Gateway (Stripe/Razorpay) integration.                     | ❌ **To Do**       |
-| **Order Tracking** | "Uber-style" tracking map or status steps (Confirmed -> Cooking -> Out for Delivery). | ❌ **To Do**       |
+| Feature            | Description                                                  | Status             |
+| :----------------- | :----------------------------------------------------------- | :----------------- |
+| **QR Code Entry**  | Scan code -> Redirect to `/:outletId/:tableId` -> Load Menu. | ✅ **Done**        |
+| **Digital Menu**   | Categorized list with high-res photos and "Add" buttons.     | ⚠️ **In Progress** |
+| **Ordering**       | Add items -> "Place Order" -> Sent to Kitchen/Waiter.        | ✅ **Done**        |
+| **Cart Logic**     | Session-based cart for the current table.                    | ⚠️ **In Progress** |
+| **Authentication** | Guest Checkout (No login required for Dine-in).              | ✅ **Done**        |
+| **Order Tracking** | Real-time status updates (Placed -> Cooking -> Serve).       | ❌ **To Do**       |
 
-## 🔄 Daily Workflow
+## 🔄 Daily Workflow (Dine-In)
 
-1.  **Discovery**: User lands on the site/app. Sees "Best Sellers".
-2.  **Selection**: Browses "Pizza" category. Selects "Margherita".
-3.  **Customization**: Modal opens -> Choose Size (Large), Add Topping (Mushrooms). -> Add to Cart.
-4.  **Checkout**: View Cart -> Proceed to Pay -> Enter Address -> Pay via UPI/Card.
-5.  **Anticipation**: Watches the status screen.
-    - "Kitchen is preparing your order..."
-    - "Rider picked up..."
-6.  **Reception**: Food arrives. User rates the food (Optional).
+1.  **Arrival**: Customer sits at **Table 5**.
+2.  **Connection**: Scans QR Code. Phone opens `app.indocafe.com/delhi-01/T5`.
+3.  **Selection**: Browses menu. Adds 2 Burgers and 1 Coke.
+4.  **Submission**: Clicks "Place Order".
+    - _Note_: Payment can be done now (Online) or later (CashCounter).
+5.  **Anticipation**: Watches screen:
+    - "Kitchen is preparing..."
+6.  **Service**: Waiter brings food.
+7.  **Completion**: Customer requests bill (if Pay Later) or just leaves (if Pay Now). Manager/Waiter frees the table.

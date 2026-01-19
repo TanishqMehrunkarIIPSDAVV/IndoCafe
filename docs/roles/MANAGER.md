@@ -8,20 +8,20 @@ The person responsible for a _specific_ physical or cloud kitchen location. They
 ## 🔐 Access Level
 
 - **Routes**: `/manager/*`, `/kitchen/*` (read-only usually), `/pos/*` (to assist).
-- **Capabilities**: Manage their specific outlet's staff, local menu pricing/availability, inventory, and shift scheduling.
+- **Capabilities**: Manage their specific outlet's staff, local menu pricing/availability, inventory, shift scheduling, and **Table Reservations**.
 - **Restrictions**: Cannot see data from _other_ outlets. Cannot delete the Master Menu items (only hide them).
 
 ## 🛠️ Key Features & Implementation Status
 
-| Feature                   | Description                                                                | Status             |
-| :------------------------ | :------------------------------------------------------------------------- | :----------------- |
-| **Staff Onboarding**      | Create accounts for Kitchen Staff, Waiters, and Riders for _their_ outlet. | ✅ **Done**        |
-| **Menu Overrides**        | Mark master items as "Out of Stock" locally or change local price.         | ⚠️ **In Progress** |
-| **Shift Management**      | Assign rosters for the week; track clock-in/out.                           | ❌ **To Do**       |
-| **Inventory Management**  | Log daily stock levels; set low-stock alerts.                              | ❌ **To Do**       |
-| **Daily Reports**         | "EOD" (End of Day) report generation (Sales vs Cost).                      | ❌ **To Do**       |
-| **Refunds/Cancellations** | Authority to approve voids or refunds requested by waiters/cashiers.       | ❌ **To Do**       |
-| **Price Edit Request Approve by Admin** | Admin needs to approve request of price edit.      | ❌ **To Do**       |
+| Feature                                 | Description                                                                | Status             |
+| :-------------------------------------- | :------------------------------------------------------------------------- | :----------------- |
+| **Staff Onboarding**                    | Create accounts for Kitchen Staff, Waiters, and Riders for _their_ outlet. | ✅ **Done**        |
+| **Menu Overrides**                      | Mark master items as "Out of Stock" locally or change local price.         | ⚠️ **In Progress** |
+| **Shift Management**                    | Assign rosters for the week; track clock-in/out.                           | ❌ **To Do**       |
+| **Inventory Management**                | Log daily stock levels; set low-stock alerts.                              | ❌ **To Do**       |
+| **Daily Reports**                       | "EOD" (End of Day) report generation (Sales vs Cost).                      | ❌ **To Do**       |
+| **Refunds/Cancellations**               | Authority to approve voids or refunds requested by waiters/cashiers.       | ❌ **To Do**       |
+| **Price Edit Request Approve by Admin** | Admin needs to approve request of price edit.                              | ❌ **To Do**       |
 
 ## 🔄 Daily Workflow
 

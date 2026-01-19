@@ -21,6 +21,7 @@ _Internal tools for running the restaurant day-to-day._
 - [ ] **Order Management**: Schema design for Orders (Dine-in/Delivery).
 - [x] **Kitchen Display System (KDS)**: Real-time view for kitchen staff to manage active orders.
 - [x] **Table Management**: Visual map or list of tables for Waiters.
+- [x] **QR Code Ordering**: Specific `/:outletId/:tableId` flow for customers.
 - [ ] **Inventory Basics**: Tracking stock deduction based on menu items sold.
 - [ ] **Profile Refactor**: Optimization of ProfileScreen and Image Uploads.
 - [ ] **Bubble Navbar**: Custom bottom navigation implementation.
