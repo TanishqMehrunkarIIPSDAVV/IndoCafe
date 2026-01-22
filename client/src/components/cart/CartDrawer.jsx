@@ -52,7 +52,13 @@ const CartDrawer = () => {
   return (
     <div className="fixed inset-0 z-[70] flex justify-end">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}></div>
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsCartOpen(false);
+        }}
+      ></div>
 
       {/* Drawer */}
       <div className="relative w-full max-w-md bg-surface h-full shadow-2xl flex flex-col border-l border-white/10 animate-in slide-in-from-right duration-300">
@@ -75,36 +81,45 @@ const CartDrawer = () => {
               </Button>
             </div>
           ) : (
-            cartItems.map((item) => (
-              <div key={item._id} className="flex gap-4 p-3 bg-background rounded-xl border border-white/5">
-                <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 flex flex-col justify-between">
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-bold text-text line-clamp-1">{item.name}</h3>
-                    <p className="font-bold text-primary">${(item.price * item.quantity).toFixed(2)}</p>
+            cartItems.map((item) => {
+              const imageUrl = typeof item.image === 'string' ? item.image.trim() : '';
+              const hasImage = Boolean(imageUrl);
+
+              return (
+                <div key={item._id} className="flex gap-4 p-3 bg-background rounded-xl border border-white/5">
+                  <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-secondary/10 flex items-center justify-center">
+                    {hasImage ? (
+                      <img src={imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xs text-secondary">No image</span>
+                    )}
                   </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="flex items-center gap-3 bg-surface rounded-lg p-1 border border-white/10">
-                      <button
-                        onClick={() => updateQuantity(item._id, item.quantity - 1, item.modifiers)}
-                        className="p-1 hover:text-primary transition-colors"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item._id, item.quantity + 1, item.modifiers)}
-                        className="p-1 hover:text-primary transition-colors"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-bold text-text line-clamp-1">{item.name}</h3>
+                      <p className="font-bold text-primary">${(item.price * item.quantity).toFixed(2)}</p>
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                      <div className="flex items-center gap-3 bg-surface rounded-lg p-1 border border-white/10">
+                        <button
+                          onClick={() => updateQuantity(item._id, item.quantity - 1, item.modifiers)}
+                          className="p-1 hover:text-primary transition-colors"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item._id, item.quantity + 1, item.modifiers)}
+                          className="p-1 hover:text-primary transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 

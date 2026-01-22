@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '../../components/ui/button';
 
-const HeroSection = ({ onBookTable }) => {
+const HeroSection = () => {
   return (
     <div className="relative h-screen min-h-[600px] flex items-center justify-center">
       {/* Background Image with Overlay */}
@@ -21,15 +21,11 @@ const HeroSection = ({ onBookTable }) => {
           <span className="text-primary">Modern Dining Experience</span>
         </h1>
         <p className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto">
-          Experience the rich heritage of Indonesian cuisine. Whether you want a cozy dine-in experience or quick
-          delivery to your doorstep, we serve happiness.
+          Experience the rich heritage of Indonesian cuisine with our exquisite menu selection.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex justify-center">
           <Button variant="primary" className="text-lg px-8 py-3">
             Order Now
-          </Button>
-          <Button variant="surface" className="text-lg px-8 py-3" onClick={onBookTable}>
-            Book a Table
           </Button>
         </div>
       </div>

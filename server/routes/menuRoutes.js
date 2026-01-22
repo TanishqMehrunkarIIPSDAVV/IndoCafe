@@ -5,6 +5,7 @@ import {
   getOutletMenu,
   getAllGlobalMenuItems,
   updateGlobalMenuItem,
+  getTrendingItems,
 } from '../controllers/menuController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorize } from '../middleware/rbacMiddleware.js';
@@ -12,7 +13,8 @@ import { authorize } from '../middleware/rbacMiddleware.js';
 const router = express.Router();
 
 // Public Routes
-router.get('/public/menu/:outletId', getOutletMenu);
+router.get('/menu/public/trending/:outletId', getTrendingItems);
+router.get('/menu/public/:outletId', getOutletMenu);
 
 // Admin Routes
 router

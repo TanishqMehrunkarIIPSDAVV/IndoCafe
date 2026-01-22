@@ -63,6 +63,7 @@ const GlobalMenu = () => {
     image: '',
     isVeg: true,
     pieces: '',
+    variants: [],
   });
 
   const categories = ['Starters', 'Mains', 'Desserts', 'Beverages'];
@@ -112,6 +113,64 @@ const GlobalMenu = () => {
 
   const toggleFilterTag = (tagId) => {
     setFilterTags((prev) => (prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId]));
+  };
+
+  // Variant management functions
+  const addVariant = () => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: [...prev.variants, { name: '', options: [{ label: '', priceAdjustment: 0 }] }],
+    }));
+  };
+
+  const removeVariant = (variantIndex) => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.variants.filter((_, idx) => idx !== variantIndex),
+    }));
+  };
+
+  const updateVariantName = (variantIndex, name) => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.variants.map((v, idx) => (idx === variantIndex ? { ...v, name } : v)),
+    }));
+  };
+
+  const addVariantOption = (variantIndex) => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.variants.map((v, idx) =>
+        idx === variantIndex ? { ...v, options: [...v.options, { label: '', priceAdjustment: 0 }] } : v
+      ),
+    }));
+  };
+
+  const removeVariantOption = (variantIndex, optionIndex) => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.variants.map((v, idx) =>
+        idx === variantIndex ? { ...v, options: v.options.filter((_, oIdx) => oIdx !== optionIndex) } : v
+      ),
+    }));
+  };
+
+  const updateVariantOption = (variantIndex, optionIndex, field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.variants.map((v, idx) =>
+        idx === variantIndex
+          ? {
+              ...v,
+              options: v.options.map((opt, oIdx) =>
+                oIdx === optionIndex
+                  ? { ...opt, [field]: field === 'priceAdjustment' ? Number(value) || 0 : value }
+                  : opt
+              ),
+            }
+          : v
+      ),
+    }));
   };
 
   const handleImageChange = (e) => {
@@ -203,6 +262,7 @@ const GlobalMenu = () => {
         category: 'Starters',
         image: '',
         isVeg: true,
+        variants: [],
       });
       setSelectedTags([]);
       setImageFile(null);
@@ -285,6 +345,7 @@ const GlobalMenu = () => {
               image: '',
               isVeg: true,
               pieces: '',
+              variants: [],
             });
             setIsModalOpen(true);
           }}
@@ -456,6 +517,7 @@ const GlobalMenu = () => {
                     <th className="py-3 px-4 font-medium">Name</th>
                     <th className="py-3 px-4 font-medium">Description</th>
                     <th className="py-3 px-4 font-medium">Tags</th>
+                    <th className="py-3 px-4 font-medium">Variants</th>
                     <th className="py-3 px-4 font-medium">Type</th>
                     <th className="py-3 px-4 font-medium text-right">Base Price</th>
                   </tr>
@@ -492,6 +554,22 @@ const GlobalMenu = () => {
                         </div>
                       </td>
                       <td className="py-3 px-4">
+                        {(item.variants || []).length === 0 ? (
+                          <span className="text-xs text-secondary/60">-</span>
+                        ) : (
+                          <div className="text-xs space-y-1">
+                            {item.variants.map((variant, vIdx) => (
+                              <div key={vIdx}>
+                                <span className="font-medium text-primary">{variant.name}:</span>{' '}
+                                <span className="text-secondary">
+                                  {variant.options.map((opt) => opt.label).join(', ')}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
                         <span
                           className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                             item.isVeg ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
@@ -515,6 +593,7 @@ const GlobalMenu = () => {
                               image: item.image || '',
                               isVeg: !!item.isVeg,
                               pieces: item.pieces ?? '',
+                              variants: item.variants || [],
                             });
                             setSelectedTags(item.tags || []);
                             setImageFile(null);
@@ -536,131 +615,218 @@ const GlobalMenu = () => {
       {/* Add Item Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-surface rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+          <div className="bg-surface rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b border-secondary/10">
               <h2 className="text-xl font-bold text-primary">{isEditing ? 'Edit Menu Item' : 'Add New Menu Item'}</h2>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-secondary mb-1">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 rounded-lg border border-secondary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-secondary mb-1">Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows="2"
-                  className="w-full px-3 py-2 rounded-lg border border-secondary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+              <div className="p-6 space-y-4 overflow-y-auto">
+                {/* Scrollable form content */}
                 <div>
-                  <label className="block text-sm font-medium text-secondary mb-1">Base Price (₹)</label>
+                  <label className="block text-sm font-medium text-secondary mb-1">Name</label>
                   <input
-                    type="number"
-                    name="basePrice"
-                    value={formData.basePrice}
+                    type="text"
+                    name="name"
+                    value={formData.name}
                     onChange={handleInputChange}
                     required
-                    min="0"
                     className="w-full px-3 py-2 rounded-lg border border-secondary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background"
                   />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-secondary mb-1">Category</label>
-                  <select
-                    name="category"
-                    value={formData.category}
+                  <label className="block text-sm font-medium text-secondary mb-1">Description</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
                     onChange={handleInputChange}
+                    rows="2"
                     className="w-full px-3 py-2 rounded-lg border border-secondary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background"
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-secondary mb-1">Tags</label>
-                <Tags value={selectedTags} setValue={setSelectedTags}>
-                  <TagsTrigger>
-                    {selectedTags.length === 0 ? (
-                      <span className="text-sm text-muted-foreground">Select cuisine/tags...</span>
-                    ) : (
-                      selectedTags.map((tag) => (
-                        <TagsValue key={tag} onRemove={() => toggleTag(tag)}>
-                          {TAG_OPTIONS.find((t) => t.id === tag)?.label || tag}
-                        </TagsValue>
-                      ))
-                    )}
-                  </TagsTrigger>
-                  <TagsContent>
-                    <TagsInput placeholder="Search tags..." />
-                    <TagsList>
-                      <TagsEmpty>No tags found.</TagsEmpty>
-                      <TagsGroup>
-                        {TAG_OPTIONS.map((tag) => (
-                          <TagsItem key={tag.id} value={tag.id} onSelect={() => toggleTag(tag.id)}>
-                            {tag.label}
-                            {selectedTags.includes(tag.id) && <span className="text-xs text-primary">✓</span>}
-                          </TagsItem>
-                        ))}
-                      </TagsGroup>
-                    </TagsList>
-                  </TagsContent>
-                </Tags>
-              </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-secondary mb-1">Base Price (₹)</label>
+                    <input
+                      type="number"
+                      name="basePrice"
+                      value={formData.basePrice}
+                      onChange={handleInputChange}
+                      required
+                      min="0"
+                      className="w-full px-3 py-2 rounded-lg border border-secondary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-secondary mb-1">Category</label>
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 rounded-lg border border-secondary/20 focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background"
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-secondary mb-1">Upload Image</label>
+                <div>
+                  <label className="block text-sm font-medium text-secondary mb-1">Tags</label>
+                  <Tags value={selectedTags} setValue={setSelectedTags}>
+                    <TagsTrigger>
+                      {selectedTags.length === 0 ? (
+                        <span className="text-sm text-muted-foreground">Select cuisine/tags...</span>
+                      ) : (
+                        selectedTags.map((tag) => (
+                          <TagsValue key={tag} onRemove={() => toggleTag(tag)}>
+                            {TAG_OPTIONS.find((t) => t.id === tag)?.label || tag}
+                          </TagsValue>
+                        ))
+                      )}
+                    </TagsTrigger>
+                    <TagsContent>
+                      <TagsInput placeholder="Search tags..." />
+                      <TagsList>
+                        <TagsEmpty>No tags found.</TagsEmpty>
+                        <TagsGroup>
+                          {TAG_OPTIONS.map((tag) => (
+                            <TagsItem key={tag.id} value={tag.id} onSelect={() => toggleTag(tag.id)}>
+                              {tag.label}
+                              {selectedTags.includes(tag.id) && <span className="text-xs text-primary">✓</span>}
+                            </TagsItem>
+                          ))}
+                        </TagsGroup>
+                      </TagsList>
+                    </TagsContent>
+                  </Tags>
+                </div>
 
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full px-3 py-2 rounded-lg border border-secondary/20
+                <div>
+                  <label className="block text-sm font-medium text-secondary mb-1">Upload Image</label>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full px-3 py-2 rounded-lg border border-secondary/20
                       focus:outline-none focus:ring-2 focus:ring-primary/50
                       bg-background file:mr-4 file:py-2 file:px-4
                       file:rounded-lg file:border-0
                       file:text-sm file:font-semibold
                       file:bg-primary file:text-white
                       hover:file:bg-primary/90"
-                />
+                  />
 
-                {formData.image && (
-                  <img src={formData.image} alt="Preview" className="mt-2 h-24 rounded-lg object-cover" />
-                )}
+                  {formData.image && (
+                    <img src={formData.image} alt="Preview" className="mt-2 h-24 rounded-lg object-cover" />
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="isVeg"
+                    id="isVeg"
+                    checked={formData.isVeg}
+                    onChange={handleInputChange}
+                    className="w-4 h-4 text-primary rounded border-secondary/20 focus:ring-primary"
+                  />
+                  <label htmlFor="isVeg" className="text-sm font-medium text-text">
+                    Is Vegetarian?
+                  </label>
+                </div>
+
+                {/* Variants Section */}
+                <div className="border-t border-secondary/10 pt-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <label className="block text-sm font-medium text-secondary">
+                      Custom Options (Size, Portion, etc.)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={addVariant}
+                      className="px-3 py-1 text-xs bg-primary/10 text-primary rounded-md hover:bg-primary/20 transition-colors"
+                    >
+                      + Add Option Group
+                    </button>
+                  </div>
+
+                  {formData.variants.length === 0 ? (
+                    <p className="text-xs text-secondary/60 italic">
+                      No custom options. Click "Add Option Group" to create size variants, portion options, etc.
+                    </p>
+                  ) : (
+                    <div className="space-y-4">
+                      {formData.variants.map((variant, vIdx) => (
+                        <div key={vIdx} className="bg-background/50 p-3 rounded-lg border border-secondary/10">
+                          <div className="flex items-center gap-2 mb-2">
+                            <input
+                              type="text"
+                              placeholder="e.g., Size, Portion"
+                              value={variant.name}
+                              onChange={(e) => updateVariantName(vIdx, e.target.value)}
+                              className="flex-1 px-2 py-1 text-sm rounded border border-secondary/20 focus:outline-none focus:ring-1 focus:ring-primary/50 bg-background"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeVariant(vIdx)}
+                              className="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded"
+                            >
+                              Remove Group
+                            </button>
+                          </div>
+
+                          <div className="space-y-2 pl-2">
+                            {variant.options.map((option, oIdx) => (
+                              <div key={oIdx} className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  placeholder="Option (e.g., Small, Medium, Full, Half)"
+                                  value={option.label}
+                                  onChange={(e) => updateVariantOption(vIdx, oIdx, 'label', e.target.value)}
+                                  className="flex-1 px-2 py-1 text-sm rounded border border-secondary/20 focus:outline-none focus:ring-1 focus:ring-primary/50 bg-background"
+                                />
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-secondary">₹</span>
+                                  <input
+                                    type="number"
+                                    placeholder="0"
+                                    value={option.priceAdjustment}
+                                    onChange={(e) => updateVariantOption(vIdx, oIdx, 'priceAdjustment', e.target.value)}
+                                    className="w-20 px-2 py-1 text-sm rounded border border-secondary/20 focus:outline-none focus:ring-1 focus:ring-primary/50 bg-background"
+                                  />
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeVariantOption(vIdx, oIdx)}
+                                  className="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => addVariantOption(vIdx)}
+                              className="text-xs text-primary hover:underline"
+                            >
+                              + Add Option
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
+              {/* End scrollable form content */}
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="isVeg"
-                  id="isVeg"
-                  checked={formData.isVeg}
-                  onChange={handleInputChange}
-                  className="w-4 h-4 text-primary rounded border-secondary/20 focus:ring-primary"
-                />
-                <label htmlFor="isVeg" className="text-sm font-medium text-text">
-                  Is Vegetarian?
-                </label>
-              </div>
-
-              <div className="flex justify-end gap-3 mt-6">
+              <div className="flex justify-end gap-3 p-6 border-t border-secondary/10 bg-surface">
                 <button
                   type="button"
                   onClick={() => {

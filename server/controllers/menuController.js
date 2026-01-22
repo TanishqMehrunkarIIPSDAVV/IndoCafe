@@ -1,5 +1,7 @@
+import mongoose from 'mongoose';
 import MenuItem from '../models/MenuItem.js';
 import OutletItemConfig from '../models/OutletItemConfig.js';
+import Order from '../models/Order.js';
 import { sendResponse } from '../utils/responseHandler.js';
 
 // @desc    Get all global menu items
@@ -105,6 +107,7 @@ export const createGlobalMenuItem = async (req, res) => {
       isVeg,
       pieces,
       tags,
+      variants,
     } = req.body;
 
     const incomingTags = Array.isArray(tags) ? tags : [];
@@ -130,6 +133,7 @@ export const createGlobalMenuItem = async (req, res) => {
       isVeg,
       pieces,
       tags: sanitizedTags,
+      variants: variants || [],
     });
     sendResponse(res, 201, menuItem, 'Menu item created successfully', true);
   } catch (error) {
@@ -316,6 +320,106 @@ export const getOutletMenu = async (req, res) => {
     sendResponse(res, 200, mergedMenu, 'Menu fetched successfully', true);
   } catch (error) {
     console.error('Error fetching outlet menu:', error);
+    sendResponse(res, 500, null, 'Server Error', false);
+  }
+};
+
+// @desc    Get trending menu items based on order frequency
+// @route   GET /api/menu/public/trending/:outletId
+// @access  Public
+export const getTrendingItems = async (req, res) => {
+  try {
+    const { outletId } = req.params;
+    const limit = parseInt(req.query.limit || '10', 10);
+
+    if (!outletId || outletId === 'undefined') {
+      return sendResponse(res, 400, null, 'Invalid Outlet ID', false);
+    }
+
+    // Get orders from last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Aggregate orders to find most ordered items
+    const trendingItems = await Order.aggregate([
+      {
+        $match: {
+          outletId: new mongoose.Types.ObjectId(outletId),
+          createdAt: { $gte: thirtyDaysAgo },
+          status: { $ne: 'cancelled' },
+        },
+      },
+      { $unwind: '$items' },
+      {
+        $group: {
+          _id: '$items.menuItem',
+          orderCount: { $sum: '$items.quantity' },
+          totalSales: {
+            $sum: { $multiply: ['$items.quantity', '$items.price'] },
+          },
+        },
+      },
+      { $sort: { orderCount: -1 } },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: 'menuitems',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'itemDetails',
+        },
+      },
+      { $unwind: '$itemDetails' },
+    ]);
+
+    // Fetch outlet configs for pricing
+    const menuItemIds = trendingItems.map((item) => item._id);
+    const outletConfigs = await OutletItemConfig.find({
+      outletId,
+      menuItemId: { $in: menuItemIds },
+    }).lean();
+
+    const configMap = new Map();
+    outletConfigs.forEach((config) => {
+      configMap.set(config.menuItemId.toString(), config);
+    });
+
+    // Format response with pricing
+    const formattedTrending = trendingItems.map((item) => {
+      const itemDetail = item.itemDetails;
+      const config = configMap.get(item._id.toString());
+
+      let finalPrice = itemDetail.basePrice;
+      let isAvailable = true;
+
+      if (config) {
+        if (config.customPrice !== null && config.customPrice !== undefined) {
+          finalPrice = config.customPrice;
+        }
+        if (config.isAvailable !== undefined) {
+          isAvailable = config.isAvailable;
+        }
+      }
+
+      return {
+        ...itemDetail,
+        price: finalPrice,
+        isAvailable,
+        originalPrice: itemDetail.basePrice,
+        orderCount: item.orderCount,
+        totalSales: item.totalSales,
+      };
+    });
+
+    sendResponse(
+      res,
+      200,
+      formattedTrending,
+      'Trending items fetched successfully',
+      true
+    );
+  } catch (error) {
+    console.error('Error fetching trending items:', error);
     sendResponse(res, 500, null, 'Server Error', false);
   }
 };
