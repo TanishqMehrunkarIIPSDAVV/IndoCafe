@@ -26,7 +26,14 @@ const MenuCard = ({ item }) => {
         <p className="text-secondary text-sm mb-4 flex-grow">{item.description}</p>
         <div className="flex justify-between items-center mt-auto">
           <span className="text-lg font-bold text-text">${item.price}</span>
-          <Button variant="outline" className="text-sm px-4 py-1" onClick={() => addToCart(item)}>
+          <Button
+            variant="outline"
+            className="text-sm px-4 py-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(item);
+            }}
+          >
             Add
           </Button>
         </div>

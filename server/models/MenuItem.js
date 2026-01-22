@@ -37,6 +37,31 @@ const menuItemSchema = new mongoose.Schema(
       required: true,
       default: true,
     },
+    variants: {
+      type: [
+        {
+          name: {
+            type: String,
+            required: true,
+            trim: true,
+          },
+          options: [
+            {
+              label: {
+                type: String,
+                required: true,
+                trim: true,
+              },
+              priceAdjustment: {
+                type: Number,
+                default: 0,
+              },
+            },
+          ],
+        },
+      ],
+      default: [],
+    },
   },
   {
     timestamps: true,

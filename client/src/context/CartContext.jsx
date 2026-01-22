@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { CartContext } from './CartContextValues';
 
 export const CartProvider = ({ children }) => {
@@ -35,25 +35,56 @@ export const CartProvider = ({ children }) => {
     }
   }, [tableInfo]);
 
-  const addToCart = (item, quantity = 1, modifiers = []) => {
+  const addGuardRef = useRef(new Map());
+  const timeoutRef = useRef(null);
+
+  const addToCart = useCallback((item, quantity = 1, modifiers = []) => {
+    if (!item?._id) {
+      return;
+    }
+
+    const normalizedModifiers = Array.isArray(modifiers) ? modifiers : [];
+    const guardKey = `${item._id}-${JSON.stringify(normalizedModifiers)}`;
+
+    // Check if this exact item+modifiers combo is already being added
+    const lastAddTime = addGuardRef.current.get(guardKey);
+    if (lastAddTime && Date.now() - lastAddTime < 1000) {
+      return;
+    }
+
+    // Record this add attempt
+    addGuardRef.current.set(guardKey, Date.now());
+
     setCartItems((prevItems) => {
-      // Check if item with same ID and modifiers exists
-      // For simplicity, we'll just check ID for now.
-      // Should ideally check modifiers too (deep equal).
+      const normalizedImage = typeof item.image === 'string' && item.image.trim() ? item.image.trim() : null;
+      const safeQuantity = Math.max(1, quantity);
       const existingItemIndex = prevItems.findIndex(
-        (i) => i._id === item._id && JSON.stringify(i.modifiers) === JSON.stringify(modifiers)
+        (i) => i._id === item._id && JSON.stringify(i.modifiers) === JSON.stringify(normalizedModifiers)
       );
 
       if (existingItemIndex > -1) {
         const newItems = [...prevItems];
-        newItems[existingItemIndex].quantity += quantity;
+        newItems[existingItemIndex].quantity += safeQuantity;
         return newItems;
-      } else {
-        return [...prevItems, { ...item, quantity, modifiers }];
       }
+
+      return [
+        ...prevItems,
+        { ...item, image: normalizedImage, quantity: safeQuantity, modifiers: normalizedModifiers },
+      ];
     });
-    setIsCartOpen(true);
-  };
+
+    // Open cart drawer
+    setTimeout(() => setIsCartOpen(true), 0);
+
+    // Clear guard after 1 second to allow new adds
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      addGuardRef.current.delete(guardKey);
+    }, 1000);
+  }, []);
 
   const removeFromCart = (itemId, modifiers = []) => {
     setCartItems((prevItems) =>

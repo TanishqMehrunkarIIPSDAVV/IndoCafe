@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ClassicLoader from '@/components/ui/loader';
 import { useOutlet } from '../../context/OutletContextValues';
@@ -11,18 +11,19 @@ import { Button } from '@/components/ui/button';
 
 import CartDrawer from '../../components/cart/CartDrawer';
 import FeaturedItems from '../../features/home/FeaturedItems';
+import TrendingItems from '../../features/home/TrendingItems';
 // Reusing FeaturedItems for now, but ideally this should be a "MenuSection" component that takes categories.
-// Since FeaturedItems fetches its own data, we might need a dedicated MenuList component.
-// For this MVP step, let's create a wrapper that looks mobile-native.
 
 const OrderSession = () => {
   const { outletId, tableId } = useParams();
   const navigate = useNavigate();
   const { setOutlet, selectedOutlet } = useOutlet();
   const { setTableInfo, tableInfo, setIsCartOpen, cartItems } = useCart();
+  const initializationRef = useRef(false);
 
   const [activeTab, setActiveTab] = useState('menu'); // 'menu' | 'orders' | 'bill'
   const [isLoading, setIsLoading] = useState(true);
+  const [showFullMenu, setShowFullMenu] = useState(false);
 
   // --- 1. Session Initialization ---
   useEffect(() => {
@@ -31,15 +32,17 @@ const OrderSession = () => {
         setIsLoading(true);
         // Fetch Table Details
         const res = await api.get(`/api/public/table/${tableId}`);
+
         const table = res.data?.data || res.data;
 
         if (!table) throw new Error('Table not found');
 
         // Validate Outlet
         const tableOutletId = typeof table.outletId === 'string' ? table.outletId : table.outletId?._id;
-        if (tableOutletId !== outletId) {
-          toast.error('Table code mismatch');
-          // Redirect or handle error
+
+        // Compare as strings to handle ObjectId comparison
+        if (String(tableOutletId) !== String(outletId)) {
+          throw new Error('Table code mismatch - This table belongs to a different outlet');
         }
 
         // Set Contexts
@@ -52,7 +55,7 @@ const OrderSession = () => {
 
         toast.success(`Welcome to Table ${table.label}!`);
       } catch (err) {
-        console.error(err);
+        console.error('Session init error:', err);
         toast.error('Invalid session. Redirecting...');
         navigate('/home');
       } finally {
@@ -60,7 +63,8 @@ const OrderSession = () => {
       }
     };
 
-    if (outletId && tableId) {
+    if (outletId && tableId && !initializationRef.current) {
+      initializationRef.current = true;
       initSession();
     }
   }, [outletId, tableId, navigate, setOutlet, setTableInfo]);
@@ -124,9 +128,24 @@ const OrderSession = () => {
                 <p className="text-sm text-zinc-400">Select items to add to your table order.</p>
               </div>
 
-              {/* Reusing FeaturedItems for content population for now. 
-                         Ideally refactor this to be a pure MenuList later. */}
-              <FeaturedItems />
+              {/* Trending Items Section - only show when not viewing full menu */}
+              {!showFullMenu && <TrendingItems outletId={outletId} />}
+
+              {/* All Menu Items */}
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-white">{showFullMenu ? 'Full Menu' : 'Our Menu'}</h2>
+                  <Button
+                    onClick={() => setShowFullMenu(!showFullMenu)}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs"
+                  >
+                    {showFullMenu ? 'Show Less' : 'View Full Menu'}
+                  </Button>
+                </div>
+                <FeaturedItems outletId={outletId} showAll={showFullMenu} />
+              </div>
             </motion.div>
           )}
 
