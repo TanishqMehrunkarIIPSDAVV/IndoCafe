@@ -4,7 +4,7 @@ import api from '../../lib/axios';
 import { Flame } from 'lucide-react';
 import MenuCard from '../../components/ui/MenuCard';
 
-const TrendingItems = ({ outletId }) => {
+const TrendingItems = ({ outletId, searchQuery = '', categoryFilter = 'all', dietFilter = 'all' }) => {
   const { addToCart } = useCart();
   const [trendingItems, setTrendingItems] = useState([]);
 
@@ -26,8 +26,19 @@ const TrendingItems = ({ outletId }) => {
     fetchTrendingItems();
   }, [outletId]);
 
-  // Don't show section if no trending items found
-  if (trendingItems.length === 0) {
+  // Filter trending items based on search and filters
+  const filteredTrendingItems = trendingItems.filter((item) => {
+    const matchesSearch =
+      !searchQuery ||
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
+    const matchesDiet = dietFilter === 'all' || (dietFilter === 'veg' ? item.isVeg === true : item.isVeg === false);
+    return matchesSearch && matchesCategory && matchesDiet;
+  });
+
+  // Don't show section if no trending items found after filtering
+  if (filteredTrendingItems.length === 0) {
     return null;
   }
 
@@ -40,7 +51,7 @@ const TrendingItems = ({ outletId }) => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {trendingItems.map((item) => (
+        {filteredTrendingItems.map((item) => (
           <MenuCard
             key={item._id}
             item={item}

@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ClassicLoader from '@/components/ui/loader';
 import { useOutlet } from '../../context/OutletContextValues';
 import { useCart } from '../../context/CartContextValues';
+import { useTheme } from '../../context/useTheme';
+import { useDebounce } from '../../hooks/useDebounce';
 import api from '../../lib/axios';
 import toast from 'react-hot-toast';
 import { AnimatePresence, motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
@@ -14,9 +16,11 @@ import {
   ChevronDown,
   Search,
   Menu as MenuIcon,
-  X,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import CartDrawer from '../../components/cart/CartDrawer';
 import FeaturedItems from '../../features/home/FeaturedItems';
@@ -28,6 +32,7 @@ const OrderSession = () => {
   const navigate = useNavigate();
   const { setOutlet, selectedOutlet } = useOutlet();
   const { setTableInfo, tableInfo, setIsCartOpen, cartItems } = useCart();
+  const { isDarkMode, toggleTheme } = useTheme();
   const initializationRef = useRef(false);
 
   const [activeTab, setActiveTab] = useState('menu'); // 'menu' | 'orders' | 'bill'
@@ -36,6 +41,15 @@ const OrderSession = () => {
   const [orders, setOrders] = useState([]);
   const [isOrdersLoading, setIsOrdersLoading] = useState(false);
   const [expandedOrders, setExpandedOrders] = useState([]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Search and filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [dietFilter, setDietFilter] = useState('all');
+
+  // Debounced search query
+  const debouncedSearch = useDebounce(searchQuery, 500);
 
   // --- 1. Session Initialization ---
   useEffect(() => {
@@ -134,37 +148,86 @@ const OrderSession = () => {
     <div className="min-h-screen bg-background relative font-sans pb-[calc(6rem+env(safe-area-inset-bottom,0px))]">
       <div className="max-w-5xl mx-auto w-full px-3 sm:px-4">
         {/* 1. Header (Sticky) */}
-        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-white/5 px-2 sm:px-4 py-3 flex items-center justify-between">
-          <div className="flex flex-col">
-            <h1 className="text-base sm:text-lg font-bold text-primary">{selectedOutlet?.name || 'Indo Cafe'}</h1>
-            <span className="text-[11px] sm:text-xs text-zinc-400 flex items-center gap-1">
-              <UtensilsCrossed size={12} />
-              Table {tableInfo?.tableName}
-            </span>
+        <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-white/5 px-2 sm:px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  className="p-2 rounded-full bg-zinc-200 dark:bg-zinc-900 text-zinc-700 dark:text-white border border-zinc-300 dark:border-white/10"
+                  aria-label="Open menu"
+                >
+                  <MenuIcon size={20} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" sideOffset={10} className="w-60 p-2 bg-zinc-950 border border-white/10">
+                <div className="space-y-1">
+                  <button
+                    onClick={() => {
+                      setActiveTab('menu');
+                      setIsMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      activeTab === 'menu' ? 'bg-primary/20 text-primary' : 'text-zinc-200 hover:bg-zinc-900'
+                    }`}
+                  >
+                    <MenuIcon size={16} />
+                    Menu
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('orders');
+                      setIsMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      activeTab === 'orders' ? 'bg-primary/20 text-primary' : 'text-zinc-200 hover:bg-zinc-900'
+                    }`}
+                  >
+                    <Clock size={16} />
+                    Past Orders
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsCartOpen(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-zinc-200 hover:bg-zinc-900"
+                  >
+                    <span className="flex items-center gap-3">
+                      <ShoppingBag size={16} />
+                      Cart
+                    </span>
+                    {cartItems.length > 0 && (
+                      <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                        {cartItems.length}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <div className="flex flex-col">
+              <h1 className="text-base sm:text-lg font-bold text-primary tracking-tight">
+                {selectedOutlet?.name || 'Indo Cafe'}
+              </h1>
+              <span className="text-[11px] sm:text-xs text-zinc-400 flex items-center gap-1">
+                <UtensilsCrossed size={12} />
+                Table {tableInfo?.tableName}
+              </span>
+            </div>
           </div>
-          <button className="p-2 rounded-full bg-zinc-800 text-white">
-            <Search size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full bg-zinc-200 dark:bg-zinc-900 text-zinc-700 dark:text-white border border-zinc-300 dark:border-white/10"
+              aria-label="Toggle theme"
+            >
+              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+          </div>
         </header>
 
-        {/* 2. Content Tabs */}
+        {/* 2. Content */}
         <div className="py-4 space-y-6 sm:space-y-8">
-          {/* Simple Tab Switcher */}
-          <div className="flex items-center bg-zinc-900 rounded-xl p-1 mb-4 sm:mb-6">
-            <TabButton
-              active={activeTab === 'menu'}
-              onClick={() => setActiveTab('menu')}
-              label="Menu"
-              icon={<MenuIcon size={16} />}
-            />
-            <TabButton
-              active={activeTab === 'orders'}
-              onClick={() => setActiveTab('orders')}
-              label="My Orders"
-              icon={<Clock size={16} />}
-            />
-          </div>
-
           {/* Tab Content */}
           <AnimatePresence mode="wait">
             {activeTab === 'menu' && (
@@ -175,18 +238,68 @@ const OrderSession = () => {
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-6"
               >
-                <div>
-                  <h2 className="text-lg sm:text-xl font-bold text-white mb-1">Hungry? 😋</h2>
-                  <p className="text-sm text-zinc-400">Select items to add to your table order.</p>
+                <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-primary/25 via-background to-background p-3 sm:p-6 space-y-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-primary/80">Dine-in</p>
+                    <h2 className="text-lg sm:text-2xl font-bold text-text">Hungry? Let's find your cravings.</h2>
+                    <p className="text-xs sm:text-sm text-secondary">Browse popular picks, then add to your table.</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 bg-zinc-100 dark:bg-zinc-950/70 border border-zinc-300 dark:border-white/10 rounded-xl px-2 py-2 sm:px-3 sm:py-2.5">
+                      <Search size={14} className="text-zinc-500 dark:text-zinc-400 flex-shrink-0 sm:w-4 sm:h-4" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search dishes..."
+                        className="flex-1 bg-transparent text-xs sm:text-sm text-text placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none min-w-0"
+                      />
+                      <Button
+                        size="sm"
+                        className="h-7 px-2.5 sm:h-8 sm:px-4 rounded-lg text-[10px] sm:text-xs flex-shrink-0 whitespace-nowrap"
+                      >
+                        Search
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <select
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        className="bg-zinc-100 dark:bg-zinc-950/70 border border-zinc-300 dark:border-white/10 rounded-xl px-2 py-2 sm:px-3 sm:py-2.5 text-xs sm:text-sm text-text outline-none truncate"
+                      >
+                        <option value="all">All Categories</option>
+                        <option value="Appetizers">Appetizers</option>
+                        <option value="Mains">Mains</option>
+                        <option value="Beverages">Beverages</option>
+                        <option value="Desserts">Desserts</option>
+                      </select>
+                      <select
+                        value={dietFilter}
+                        onChange={(e) => setDietFilter(e.target.value)}
+                        className="bg-zinc-100 dark:bg-zinc-950/70 border border-zinc-300 dark:border-white/10 rounded-xl px-2 py-2 sm:px-3 sm:py-2.5 text-xs sm:text-sm text-text outline-none truncate"
+                      >
+                        <option value="all">Veg & Non-Veg</option>
+                        <option value="veg">Veg</option>
+                        <option value="non-veg">Non-Veg</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Trending Items Section - only show when not viewing full menu */}
-                {!showFullMenu && <TrendingItems outletId={outletId} />}
+                {!showFullMenu && (
+                  <TrendingItems
+                    outletId={outletId}
+                    searchQuery={debouncedSearch}
+                    categoryFilter={categoryFilter}
+                    dietFilter={dietFilter}
+                  />
+                )}
 
                 {/* All Menu Items */}
                 <div>
                   <div className="flex items-center justify-between mb-4 sm:mb-6">
-                    <h2 className="text-xl sm:text-2xl font-bold text-white">
+                    <h2 className="text-xl sm:text-2xl font-bold text-text">
                       {showFullMenu ? 'Full Menu' : 'Our Menu'}
                     </h2>
                     <Button
@@ -198,7 +311,13 @@ const OrderSession = () => {
                       {showFullMenu ? 'Show Less' : 'View Full Menu'}
                     </Button>
                   </div>
-                  <FeaturedItems outletId={outletId} showAll={showFullMenu} />
+                  <FeaturedItems
+                    outletId={outletId}
+                    showAll={showFullMenu}
+                    searchQuery={debouncedSearch}
+                    categoryFilter={categoryFilter}
+                    dietFilter={dietFilter}
+                  />
                 </div>
               </motion.div>
             )}
@@ -213,8 +332,8 @@ const OrderSession = () => {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-white">My Orders</h2>
-                    <p className="text-sm text-zinc-400">Most recent first</p>
+                    <h2 className="text-lg sm:text-xl font-bold text-text">Past Orders</h2>
+                    <p className="text-sm text-secondary">Most recent first</p>
                   </div>
                   <Button size="sm" variant="outline" onClick={fetchOrders} disabled={isOrdersLoading}>
                     {isOrdersLoading ? 'Refreshing...' : 'Refresh'}
@@ -350,20 +469,5 @@ const OrderSession = () => {
     </div>
   );
 };
-
-// Helper Component
-const TabButton = ({ active, onClick, label, icon }) => (
-  <button
-    onClick={onClick}
-    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${
-      active
-        ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/25'
-        : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
-    }`}
-  >
-    {icon}
-    {label}
-  </button>
-);
 
 export default OrderSession;
